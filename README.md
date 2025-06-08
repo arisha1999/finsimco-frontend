@@ -21,7 +21,7 @@ Below is a draft of the UI for a basic simulation. It is based on a simple simul
 - React + Vite
 - Tailwind CSS for styling
 - Zustand for state management
-- Recharts for pie chard rendering
+- broadcast-channel to connect data in all tabs so both teams can work the same time
 - Node v.18.20.8
 
 ## 🚀 How to Run the Project
@@ -32,3 +32,9 @@ npm install
 
 # Start development server
 npm run dev
+
+# To access table for TEAM 1 use this adress 
+http://localhost:5173/team/team1
+
+# To access table for TEAM 2 use this adress
+http://localhost:5173/team/team2

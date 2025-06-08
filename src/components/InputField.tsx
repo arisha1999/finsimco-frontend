@@ -7,9 +7,9 @@ interface Props {
 }
 
 export default function InputField({ term }: Props) {
+  const team = useStore((s) => s.team);
   const setTermValue = useStore((s) => s.setTermValue);
   const toggleTermStatus = useStore((s) => s.toggleTermStatus);
-  const team = useStore((s) => s.team);
 
   const onValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -20,35 +20,38 @@ export default function InputField({ term }: Props) {
   };
 
   const onToggleClick = () => {
-    if (team === "team2" && term.canStatusBeChanged) {
+    if (team === "team2") {
       toggleTermStatus(term.id);
     }
   };
 
   return (
-    <div className="flex items-center space-x-4 bg-white rounded p-3 shadow-sm">
-      <label className="w-32 font-medium">{term.name}</label>
+    <div className="flex items-center justify-between gap-4 bg-white rounded-lg p-4 shadow-md">
+      <label className="w-32 text-gray-700 font-medium">{term.label}</label>
       <input
         type="number"
         value={term.value ?? ""}
         onChange={onValueChange}
-        disabled={!(team === "team1" && term.canValueBeChanged)}
-        className={`border rounded px-2 py-1 w-24 ${
-          team === "team1" && term.canValueBeChanged
-            ? "bg-white"
-            : "bg-gray-100 cursor-not-allowed"
-        }`}
+        disabled={team !== "team1"}
+        className={`
+          border rounded-md px-3 py-2 w-28 text-sm shadow-sm transition-all duration-200
+          ${team === "team1"
+            ? "bg-white focus:outline-none focus:ring-2 focus:ring-finsim-light"
+            : "bg-gray-100 text-gray-500 cursor-not-allowed"}
+        `}
       />
       <button
         onClick={onToggleClick}
-        disabled={!(team === "team2" && term.canStatusBeChanged)}
-        className={`px-3 py-1 rounded font-semibold ${
-          term.toggle === "OK"
-            ? "bg-green-400 text-white"
-            : "bg-yellow-300 text-black"
-        } ${team === "team2" && term.canStatusBeChanged ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
+        disabled={team !== "team2"}
+        className={`
+          transition-all duration-200 ease-in-out px-4 py-2 rounded-md text-sm font-semibold shadow-md
+          ${term.status === "OK"
+            ? "bg-finsim-ok hover:bg-finsim-ok/90 text-white"
+            : "bg-finsim-warn hover:bg-finsim-warn/90 text-gray-900"}
+          ${team === "team2" ? "cursor-pointer" : "cursor-not-allowed opacity-50"}
+        `}
       >
-        {term.toggle}
+        {term.status}
       </button>
     </div>
   );

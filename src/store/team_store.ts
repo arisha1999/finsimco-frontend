@@ -1,6 +1,5 @@
-// store.ts
 import { create } from "zustand";
-import { BroadcastChannel } from 'broadcast-channel';
+import { BroadcastChannel } from "broadcast-channel";
 
 export type Team = "team1" | "team2";
 
@@ -9,11 +8,10 @@ export interface Term {
   name: string;
   value: number | null;
   status: "TBD" | "OK";
-  canValueBeChanged: boolean;  // only team 1 can change value
-  canStatusBeChanged: boolean;   // only team 2 can change status
 }
 
 interface AppState {
+  team: Team;
   terms: Term[];
   factorScore: number;
   timerSeconds: number;
@@ -26,50 +24,81 @@ interface AppState {
   setFirstTimeGuidanceShown: () => void;
 }
 
-export const useStore = create<AppState>((set) => ({
-  team: "team1",
-  factorScore: 1.2,
-  timerSeconds: 0,
-  firstTimeGuidanceShown: false,
-  terms: [
-    { id: "ebitda", name: "EBITDA", value: 100, status: "TBD", canValueBeChanged: true, canStatusBeChanged: false },
-    { id: "multiple", name: "Multiple", value: 5, status: "TBD", canValueBeChanged: true, canStatusBeChanged: false },
-    { id: "interestRate", name: "Interest Rate", value: 3, status: "TBD", canValueBeChanged: true, canStatusBeChanged: false },
-    { id: "factorScore", name: "Factor Score", value: 1.2, status: "TBD", canValueBeChanged: true, canStatusBeChanged: false },
-    { id: "companyName", name: "Company Name", value: null, status: "TBD", canValueBeChanged: true, canStatusBeChanged: false },
-    { id: "description", name: "Description", value: null, status: "TBD", canValueBeChanged: true, canStatusBeChanged: false },
-  ],
-  setTermValue: (id, value) =>
-    set((state) => ({
-      terms: state.terms.map((t) =>
-        t.id === id && state.team === "team1" && t.canValueBeChanged
-          ? { ...t, value }
+// Create broadcast channel for sync info
+const bc = new BroadcastChannel<{
+  type: string;
+  payload: any;
+}>("sync-zustand-info");
+
+// Create Zustand
+export const useStore = create<AppState>((set, get) => {
+  bc.onmessage = (msg) => {
+    const { type, payload } = msg;
+
+    if (type === "UPDATE_TERMS") {
+      set({ terms: payload });
+    } else if (type === "SET_TEAM") {
+      set({ team: payload });
+    } else if (type === "TICK_TIMER") {
+      set({ timerSeconds: payload });
+    }
+  };
+
+  return {
+    team: "team1",
+    factorScore: 1.2,
+    timerSeconds: 0,
+    firstTimeGuidanceShown: false,
+    terms: [
+      { id: "ebitda", label: "EBITDA", value: null, status: "TBD"},
+      { id: "multiple", label: "Multiple", value: null, status: "TBD"},
+      { id: "interestRate", label: "Interest Rate", value: null, status: "TBD"},
+      { id: "factorScore", label: "Factor Score", value: null, status: "TBD"},
+      { id: "companyName", label: "Company Name", value: null, status: "TBD"},
+      { id: "description", label: "Description", value: null, status: "TBD"},
+    ],
+    // Update Term value
+    setTermValue: (id, value) => {
+      const newTerms = get().terms.map((t) => {
+        if (t.id === id && get().team === "team1") {
+          return {
+            ...t,
+            value,
+            status: "TBD", // automatically change status if any changes were made by team 1
+          };
+        }
+        return t;
+      });
+      set({ terms: newTerms });
+      bc.postMessage({ type: "UPDATE_TERMS", payload: newTerms });
+    },
+    // Change Term status
+    toggleTermStatus: (id) => {
+      const newTerms = get().terms.map((t) =>
+        t.id === id && get().team === "team2"
+          ? { ...t, status: t.status === "TBD" && t.value !== null ? "OK" : "TBD" }
           : t
-      ),
-    })),
-  toggleTermStatus: (id) =>
-    set((state) => ({
-      terms: state.terms.map((t) =>
-        t.id === id && state.team === "team2" && t.canStatusBeChanged
-          ? { ...t, toggle: t.status === "TBD" ? "OK" : "TBD" }
-          : t
-      ),
-    })),
-  setTeam: (team) =>
-    set((state) => {
-      const canValueBeChanged = team === "team1";
-      const canStatusBeChanged = team === "team2";
-      return {
-        team,
-        terms: state.terms.map((t) => ({
-          ...t,
-          canValueBeChanged,
-          canStatusBeChanged,
-        })),
-      };
+      );
+      set({ terms: newTerms });
+      bc.postMessage({ type: "UPDATE_TERMS", payload: newTerms });
+    },
+    // Set current used team
+    setTeam: (team) =>
+      set((state) => {
+        return {
+          team
+        };
     }),
-  tickTimer: () =>
-    set((state) => ({ timerSeconds: state.timerSeconds + 1 })),
-  setFirstTimeGuidanceShown: () =>
-    set({ firstTimeGuidanceShown: true }),
-}));
+    // Update timer
+    tickTimer: () => {
+      const newTime = get().timerSeconds + 1;
+      set({ timerSeconds: newTime });
+      bc.postMessage({ type: "TICK_TIMER", payload: newTime });
+    },
+    // Update if guidance was shown for the first time
+    setFirstTimeGuidanceShown: () => {
+      set({ firstTimeGuidanceShown: true });
+      bc.postMessage({ type: "SHOW_GUIDANCE", payload: true });
+    },
+  };
+});
