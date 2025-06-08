@@ -22,6 +22,7 @@ Below is a draft of the UI for a basic simulation. It is based on a simple simul
 - Tailwind CSS for styling
 - Zustand for state management
 - Recharts for pie chard rendering
+- Node v.18.20.8
 
 ## 🚀 How to Run the Project
 
