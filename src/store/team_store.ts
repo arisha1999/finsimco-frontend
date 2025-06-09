@@ -52,8 +52,8 @@ export const useStore = create<AppState>((set, get) => {
   const createLongText = async () => {
     try {
       const response = await fetch("https://baconipsum.com/api/?type=memes&paras=5&format=text");
-      if (!response.ok) throw new Error("Network response was not ok");
-      const result = await response.text(); // не .json(), так как формат = text
+      if (!response.ok) throw new Error("Problem fetching random text");
+      const result = await response.text();
       set({ longText: result });
       bc.postMessage({ type: "SET_LONG_TEXT", payload: result });
     } catch (error) {
@@ -134,7 +134,6 @@ export const useStore = create<AppState>((set, get) => {
     // Update if guidance was shown for the first time
     setFirstTimeGuidanceShown: () => {
       set({ firstTimeGuidanceShown: true });
-      bc.postMessage({ type: "SHOW_GUIDANCE", payload: true });
     },
   };
 });
