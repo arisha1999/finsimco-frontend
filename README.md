@@ -14,7 +14,7 @@ Below is a draft of the UI for a basic simulation. It is based on a simple simul
 
 ### UI-Example
 
-![UI-Example](ui-example.png)
+![UI-Example](src/assets/ui-example.png)
 
 ## 🛠️ Technologies
 
@@ -23,6 +23,18 @@ Below is a draft of the UI for a basic simulation. It is based on a simple simul
 - Zustand for state management
 - broadcast-channel to connect data in all tabs so both teams can work the same time
 - Node v.18.20.8
+
+## Structure
+
+### Team 1
+![UI-Example](src/assets/team1.png)
+### Team 2
+![UI-Example](src/assets/team2.png)
+### Main Page
+![UI-Example](src/assets/main_page.png)
+### Error 404
+![UI-Example](src/assets/error_404.png)
+
 
 ## 🚀 How to Run the Project
 
