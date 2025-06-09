@@ -1,27 +1,24 @@
-// components/Sidebar.tsx
 import React, { useState } from "react";
-
-const videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
-
-const longText =
-  "This is a 500 character example text. ".repeat(20).slice(0, 500);
+import { useStore } from "../store/team_store";
 
 export default function Sidebar() {
+  const gifUrl = useStore((s) => s.gifUrl);
+  const longText = useStore((s) => s.longText);
   const [modal, setModal] = useState<"video" | "text" | null>(null);
 
   return (
     <>
-      <aside className="w-24 bg-gray-800 text-white flex flex-col items-center py-4 space-y-4">
+      <aside className="w-24 bg-background text-white flex flex-col items-center py-4 space-y-4">
         <button
           onClick={() => setModal("video")}
-          className="w-16 h-16 bg-gray-700 rounded flex items-center justify-center hover:bg-gray-600"
+          className="w-16 h-16 rounded flex items-center justify-center hover:bg-finsimco-orange"
           title="Show Video"
         >
           ▶️
         </button>
         <button
           onClick={() => setModal("text")}
-          className="w-16 h-16 bg-gray-700 rounded flex items-center justify-center hover:bg-gray-600"
+          className="w-16 h-16 rounded flex items-center justify-center hover:bg-finsimco-orange"
           title="Show Text"
         >
           📝
@@ -30,25 +27,33 @@ export default function Sidebar() {
 
       {modal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-4"
           onClick={() => setModal(null)}
         >
           <div
-            className="bg-white rounded p-6 max-w-3xl max-h-[80vh] overflow-auto"
+            className="relative bg-white rounded-lg p-6 w-auto max-w-5xl max-h-[90vh] overflow-auto min-w-[320px]"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              className="mb-4 text-red-500 font-bold"
-              onClick={() => setModal(null)}
-            >
-              Close ✖
-            </button>
             {modal === "video" && (
-              <video src={videoUrl} controls className="w-full rounded" />
+              <video
+                src={gifUrl}
+                controls
+                className="w-full min-w-[320px] min-h-[200px] rounded mb-4"
+              />
             )}
+
             {modal === "text" && (
-              <p className="text-gray-700 whitespace-pre-wrap">{longText}</p>
+              <p className="text-gray-700 whitespace-pre-wrap mb-6">{longText}</p>
             )}
+
+            <div className="flex justify-end">
+              <button
+                className="bg-finsimco-grey text-finsimco-orange rounded px-4 py-2 hover:bg-gray-200"
+                onClick={() => setModal(null)}
+              >
+                Close ✖
+              </button>
+            </div>
           </div>
         </div>
       )}

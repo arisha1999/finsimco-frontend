@@ -17,9 +17,9 @@ export default function Accordion() {
   }, [firstTimeShown, setFirstTimeGuidanceShown]);
 
   return (
-    <section className="border rounded bg-white shadow-sm p-4 max-w-xl">
+    <section className="border rounded bg-white rounded-lg p-4 shadow-md w-full">
       <button
-        className="font-semibold text-left w-full"
+        className="text-left w-full"
         onClick={() => setOpen((o) => !o)}
       >
         First Time Guidance {open ? "▲" : "▼"}

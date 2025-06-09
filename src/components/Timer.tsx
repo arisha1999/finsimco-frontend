@@ -9,7 +9,7 @@ export default function Timer() {
   const seconds = timerSeconds % 60;
 
   return (
-    <div className="text-lg font-mono bg-gray-200 rounded px-3 py-1 w-max">
+    <div className="text-lg bg-gray-200 rounded px-3 py-1 w-max">
       Timer: {minutes.toString().padStart(2, "0")}:
       {seconds.toString().padStart(2, "0")}
     </div>

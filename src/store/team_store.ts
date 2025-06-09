@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { BroadcastChannel } from "broadcast-channel";
-
+import React, { useEffect } from "react";
 export type Team = "team1" | "team2";
 
 export interface Term {
   id: string;
   name: string;
-  value: number | null;
+  value: string;
   status: "TBD" | "OK";
 }
 
@@ -17,7 +17,10 @@ interface AppState {
   timerSeconds: number;
   firstTimeGuidanceShown: boolean;
 
-  setTermValue: (id: string, value: number) => void;
+  gifUrl: string;
+  longText: string;
+
+  setTermValue: (id: string, value: string) => void;
   toggleTermStatus: (id: string) => void;
   setTeam: (team: Team) => void;
   tickTimer: () => void;
@@ -32,6 +35,34 @@ const bc = new BroadcastChannel<{
 
 // Create Zustand
 export const useStore = create<AppState>((set, get) => {
+  const createGif = async () => {
+    try {
+      const url = `https://tenor.googleapis.com/v2/search?q=funny&key=AIzaSyCSbtIbWlNjppotUcP2KJVwURBrmmJjYC4&client_key=my_test_app&limit=1&random=true`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const gif = data?.results?.[0]?.media_formats?.mp4?.url;
+      if (gif) {
+        set({ gifUrl: gif });
+        bc.postMessage({ type: "SET_GIF", payload: gif });
+      }
+    } catch (error) {
+      console.error("Error getting gif:", error);
+    }
+  };
+  const createLongText = async () => {
+    try {
+      const response = await fetch("https://baconipsum.com/api/?type=memes&paras=5&format=text");
+      if (!response.ok) throw new Error("Network response was not ok");
+      const result = await response.text(); // не .json(), так как формат = text
+      set({ longText: result });
+      bc.postMessage({ type: "SET_LONG_TEXT", payload: result });
+    } catch (error) {
+      console.error("Error fetching random text:", error);
+      set({ longText: "" });
+    }
+  };
+  createGif();
+  createLongText();
   bc.onmessage = (msg) => {
     const { type, payload } = msg;
 
@@ -40,14 +71,19 @@ export const useStore = create<AppState>((set, get) => {
     } else if (type === "SET_TEAM") {
       set({ team: payload });
     } else if (type === "TICK_TIMER") {
-      set({ timerSeconds: payload });
+      set({timerSeconds: payload});
+    } else if (type === "SET_GIF") {
+      set({ gifUrl: payload });
+    } else if (type === "SET_LONG_TEXT") {
+      set({ longText: payload });
     }
   };
-
   return {
     team: "team1",
     factorScore: 1.2,
     timerSeconds: 0,
+    gifUrl: "",
+    longText: "",
     firstTimeGuidanceShown: false,
     terms: [
       { id: "ebitda", label: "EBITDA", value: null, status: "TBD"},

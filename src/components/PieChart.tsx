@@ -2,76 +2,85 @@
 import React from "react";
 
 interface Props {
-  valuation: number;
+  valuation: number
+  interestRate: number;
 }
 
-export default function PieChart({ valuation }: Props) {
-  // Для упрощения — рисуем 3 сектора пропорционально EBITDA, Multiple и Factor Score
-  // Можно заменить на библиотеку (recharts/d3), но здесь простая SVG демонстрация
-
-  const ebitdaPortion = 40;
-  const multiplePortion = 35;
-  const factorPortion = 25;
-
+export default function PieChart({ valuation, interestRate}: Props) {
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
 
-  const strokeEbitda = (circumference * ebitdaPortion) / 100;
-  const strokeMultiple = (circumference * multiplePortion) / 100;
-  const strokeFactor = (circumference * factorPortion) / 100;
+  const strokeInterestRate = (circumference * interestRate) / 100;
+  const other = (circumference * (100 - interestRate)) / 100;
 
   return (
-    <div className="bg-white rounded shadow p-4 flex flex-col items-center">
-      <h2 className="font-bold mb-2">Pie Chart (Mocked)</h2>
-      <svg width={radius * 2} height={radius * 2} viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
-        <circle
-          r={radius}
-          cx={radius}
-          cy={radius}
-          fill="transparent"
-          stroke="#e5e7eb"
-          strokeWidth={20}
-        />
-        {/* EBITDA slice */}
-        <circle
-          r={radius}
-          cx={radius}
-          cy={radius}
-          fill="transparent"
-          stroke="#3b82f6"
-          strokeWidth={20}
-          strokeDasharray={`${strokeEbitda} ${circumference - strokeEbitda}`}
-          strokeDashoffset={0}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${radius} ${radius})`}
-        />
-        {/* Multiple slice */}
-        <circle
-          r={radius}
-          cx={radius}
-          cy={radius}
-          fill="transparent"
-          stroke="#10b981"
-          strokeWidth={20}
-          strokeDasharray={`${strokeMultiple} ${circumference - strokeMultiple}`}
-          strokeDashoffset={-strokeEbitda}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${radius} ${radius})`}
-        />
-        {/* Factor Score slice */}
-        <circle
-          r={radius}
-          cx={radius}
-          cy={radius}
-          fill="transparent"
-          stroke="#f59e0b"
-          strokeWidth={20}
-          strokeDasharray={`${strokeFactor} ${circumference - strokeFactor}`}
-          strokeDashoffset={-(strokeEbitda + strokeMultiple)}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${radius} ${radius})`}
-        />
-      </svg>
-    </div>
+      <div className="bg-white rounded shadow p-4 flex flex-col h-full">
+        <h2 className="mb-6 text-center text-2xl font-semibold text-gray-800 drop-shadow-sm">
+          Valuation: <span className="text-finsim-dark">{valuation}</span>
+        </h2>
+        <div className="flex flex-1 justify-between">
+          {/* Diagram */}
+          <div className="w-3/5 flex items-center justify-center">
+            <svg
+                width={radius * 3}
+                height={radius * 3}
+                viewBox={`0 0 ${radius * 2} ${radius * 2}`}
+            >
+              <circle
+                  r={radius - 10}
+                  cx={radius}
+                  cy={radius}
+                  fill="transparent"
+                  stroke="#e5e7eb"
+                  strokeWidth={20}
+              />
+              {/* Interest Rate slice */}
+              <circle
+                  r={radius - 10}
+                  cx={radius}
+                  cy={radius}
+                  fill="transparent"
+                  stroke="#3b82f6"
+                  strokeWidth={20}
+                  strokeDasharray={`${strokeInterestRate} ${circumference - strokeInterestRate}`}
+                  strokeDashoffset={0}
+                  strokeLinecap="round"
+                  transform={`rotate(-90 ${radius} ${radius})`}
+              />
+              {/* Others slice */}
+              <circle
+                  r={radius - 10}
+                  cx={radius}
+                  cy={radius}
+                  fill="transparent"
+                  stroke="#10b981"
+                  strokeWidth={20}
+                  strokeDasharray={`${other} ${circumference - other}`}
+                  strokeDashoffset={-strokeInterestRate}
+                  strokeLinecap="round"
+                  transform={`rotate(-90 ${radius} ${radius})`}
+              />
+            </svg>
+          </div>
+
+          {/* Legend */}
+          <div className="w-2/5 flex flex-col justify-center pl-6">
+            <div className="flex items-center mb-3">
+          <span
+              className="inline-block w-5 h-5 rounded-full"
+              style={{backgroundColor: "#3b82f6"}}
+          />
+              <span className="ml-2 text-gray-700 font-medium">Valuation</span>
+            </div>
+            <div className="flex items-center">
+          <span
+              className="inline-block w-5 h-5 rounded-full"
+              style={{backgroundColor: "#10b981"}}
+          />
+              <span className="ml-2 text-gray-700 font-medium">Other</span>
+            </div>
+          </div>
+        </div>
+      </div>
   );
 }

@@ -1,31 +1,31 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
+import "./App.css"
 import {
   BrowserRouter,
   Routes,
   Route,
-  Navigate,
   useParams
 } from "react-router-dom";
 import App from "./client/App";
-import NotFound from "./client/404";
+import NotFoundPage from "./client/404";
+import MainPage from "./client/MainPage";
 
 const ValidatedTeamRoute = () => {
   const { teamId } = useParams();
   if (teamId === "team1" || teamId === "team2") {
     return <App />;
   }
-  return <NotFound />;
+  return <NotFoundPage />;
 };
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/team/team1" />} />
+        <Route path="/" element={<MainPage />} />
         <Route path="/team/:teamId" element={<ValidatedTeamRoute />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
