@@ -50,3 +50,6 @@ http://localhost:5173/team/team1
 
 # To access table for TEAM 2 use this adress
 http://localhost:5173/team/team2
+
+# You can use it here
+http://134.122.26.94:8000/
