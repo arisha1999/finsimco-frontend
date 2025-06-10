@@ -23,6 +23,7 @@ Below is a draft of the UI for a basic simulation. It is based on a simple simul
 - Zustand for state management
 - broadcast-channel to connect data in all tabs so both teams can work the same time
 - Node v.18.20.8
+- Recharts for Pie Chart
 
 ## Structure
 
